@@ -1,0 +1,22 @@
+usePlugin 'java'
+
+repositories {
+  mavenCentral()
+  mavenRepo urls: 'http://s3.amazonaws.com/maven.springframework.org/snapshot'
+  mavenRepo urls: 'http://s3.amazonaws.com/maven.springframework.org/milestone'
+}
+
+dependencies {
+  compile group: 'org.slf4j', name: 'slf4j-api', version: '1.5.8'
+  testCompile group: 'junit', name: 'junit', version: '4.7'
+  testCompile group: 'org.mockito', name: 'mockito-all', version: '1.8.0'
+
+}
+
+defaultTasks 'clean', 'build'
+
+sourceCompatibility = 1.6
+version = '0.0.1-SNAPSHOT'
+jar.basename = 'concurrent-test'
+
+
