@@ -16,5 +16,5 @@
     <i:channel id="channel1">
         <i:queue capacity="5"/>
     </i:channel>
-
+    
 </beans>

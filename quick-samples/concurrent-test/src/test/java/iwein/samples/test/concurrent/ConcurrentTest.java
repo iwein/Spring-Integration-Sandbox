@@ -2,10 +2,9 @@ package iwein.samples.test.concurrent;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.PollableChannel;
 import org.springframework.integration.core.Message;
 import org.springframework.integration.core.MessageChannel;
@@ -13,48 +12,56 @@ import org.springframework.integration.message.MessageBuilder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.concurrent.CountDownLatch;
+import java.io.File;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.BDDMockito.given;
 
 @ContextConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ConcurrentTest {
 
-  @Autowired @Qualifier("in") MessageChannel in;
+  @Autowired
+  @Qualifier("in")
+  MessageChannel in;
 
-  @Autowired @Qualifier("out") PollableChannel out;
+  @Autowired
+  @Qualifier("out")
+  PollableChannel out;
 
-  @Autowired Service service;
+  @Autowired
+  Service service;
 
-  @Test(timeout = 5000)
+  @Test(timeout = 200000)
   public void shouldGoThroughPipeline() throws Exception {
-    //given
-    final CountDownLatch serviceInvoked = new CountDownLatch(1);
-    given(service.serve("test")).willAnswer(latchedAnswer("test", serviceInvoked));
 
     //when
-    in.send(MessageBuilder.withPayload("test").build());
-    serviceInvoked.await();
-
+    for (int i = 0; i < 1000; i++) {
+      File file = File.createTempFile("concurrent-test", "test");
+      file.deleteOnExit();
+      in.send(MessageBuilder.withPayload(file).build());
+    }
     //verify
-    Message<?> message = out.receive();
-    assertThat((String) message.getPayload(), is("test"));
+
+    for (int i = 0; i < 1000; i++) {
+      Message<?> message = out.receive();
+      assertThat(message.getPayload(), is(notNullValue()));
+    }
   }
 
-  private <T> Answer<T> latchedAnswer(final T returning, final CountDownLatch latch) {
-    return new Answer(){
-      public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-        latch.countDown();
-        return returning;
-      }
-    };
+
+  public static class Service {
+    @ServiceActivator
+    public File serve(File input) {
+      return input;
+    }
   }
 
-  //You'd have a class in main to mock, but an interface here will serve the example
-  public static interface Service {
-    public String serve(String input);
+  public static class Transformer {
+    @org.springframework.integration.annotation.Transformer
+    public File transform(File input) {
+      return input;
+    }
   }
 }
