@@ -1,6 +1,5 @@
 package iwein.samples.test.concurrent;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,7 @@ import static org.junit.Assert.assertNotNull;
 
 @ContextConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
-@Ignore //Remove this to reproduce http://jira.springframework.org/browse/INT-915
+//@Ignore //Remove this to reproduce http://jira.springframework.org/browse/INT-915
 public class ConcurrentTest {
 
   @Autowired
@@ -37,7 +36,7 @@ public class ConcurrentTest {
 
   @Autowired
   Service service;
-  private static final int NUMBER_OF_MESSAGES = 400;
+  private static final int NUMBER_OF_MESSAGES = 1000;
 
   @Test(timeout = 200000)
   public void shouldGoThroughPipeline() throws Throwable {
@@ -46,7 +45,7 @@ public class ConcurrentTest {
     for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
       File file = File.createTempFile("concurrent-test", "test");
       file.deleteOnExit();
-      in.send(MessageBuilder.withPayload(file).build());
+      in.send(MessageBuilder.withPayload("The quick brown fox jumped over the lazy dog").build());
     }
     //verify
     int outputCount = 0;
@@ -69,7 +68,7 @@ public class ConcurrentTest {
 
   public static class Service {
     @ServiceActivator
-    public File serve(File input) {
+    public String serve(String input) {
       assertNotNull(input);
       if (Math.random() < 0.5) {
         throw new IllegalArgumentException("zoinks!");
@@ -80,7 +79,7 @@ public class ConcurrentTest {
 
   public static class Transformer {
     @org.springframework.integration.annotation.Transformer
-    public File transform(File input) {
+    public String transform(String input) {
       assertNotNull(input);
       if (Math.random() < 0.5) {
         throw new IllegalArgumentException("zoinks!");
