@@ -17,7 +17,7 @@ import java.io.File;
 
 import static org.junit.Assert.assertNotNull;
 
-@ContextConfiguration
+@ContextConfiguration(locations = {"classpath:context.xml"})
 @RunWith(SpringJUnit4ClassRunner.class)
 //@Ignore //Remove this to reproduce http://jira.springframework.org/browse/INT-915
 public class ConcurrentTest {
