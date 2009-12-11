@@ -1,5 +1,6 @@
 package iwein.samples.test.concurrent;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import static org.junit.Assert.assertNotNull;
 
 @ContextConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
+@Ignore //Remove this to reproduce http://jira.springframework.org/browse/INT-915
 public class ConcurrentTest {
 
   @Autowired
