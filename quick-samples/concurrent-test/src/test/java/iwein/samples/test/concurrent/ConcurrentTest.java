@@ -13,8 +13,6 @@ import org.springframework.integration.message.MessageBuilder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.File;
-
 import static org.junit.Assert.assertNotNull;
 
 @ContextConfiguration(locations = {"classpath:context.xml"})
@@ -43,8 +41,6 @@ public class ConcurrentTest {
 
     //when
     for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
-      File file = File.createTempFile("concurrent-test", "test");
-      file.deleteOnExit();
       in.send(MessageBuilder.withPayload("The quick brown fox jumped over the lazy dog").build());
     }
     //verify
