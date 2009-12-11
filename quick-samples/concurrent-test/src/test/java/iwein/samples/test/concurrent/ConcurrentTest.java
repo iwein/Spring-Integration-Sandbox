@@ -8,15 +8,14 @@ import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.PollableChannel;
 import org.springframework.integration.core.Message;
 import org.springframework.integration.core.MessageChannel;
+import org.springframework.integration.message.ErrorMessage;
 import org.springframework.integration.message.MessageBuilder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertNotNull;
 
 @ContextConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -31,22 +30,35 @@ public class ConcurrentTest {
   PollableChannel out;
 
   @Autowired
+  @Qualifier("errorChannel")
+  PollableChannel err;
+
+  @Autowired
   Service service;
+  private static final int NUMBER_OF_MESSAGES = 5000;
 
   @Test(timeout = 200000)
-  public void shouldGoThroughPipeline() throws Exception {
+  public void shouldGoThroughPipeline() throws Throwable {
 
     //when
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
       File file = File.createTempFile("concurrent-test", "test");
       file.deleteOnExit();
       in.send(MessageBuilder.withPayload(file).build());
     }
     //verify
-
-    for (int i = 0; i < 1000; i++) {
-      Message<?> message = out.receive();
-      assertThat(message.getPayload(), is(notNullValue()));
+    int outputCount = 0;
+    while (outputCount < NUMBER_OF_MESSAGES) {
+      if (out.receive(10) != null) {
+        outputCount += 1;
+      } else {
+        Message<?> message = err.receive(10);
+        Throwable payload = ((ErrorMessage) message).getPayload();
+        if (!(payload.getCause() instanceof IllegalArgumentException)){
+          throw payload;
+        }
+        outputCount += message != null ? 1 : 0;
+      }
     }
   }
 
@@ -54,6 +66,10 @@ public class ConcurrentTest {
   public static class Service {
     @ServiceActivator
     public File serve(File input) {
+      assertNotNull(input);
+      if (Math.random() < 0.5) {
+        throw new IllegalArgumentException("zoinks!");
+      }
       return input;
     }
   }
@@ -61,6 +77,10 @@ public class ConcurrentTest {
   public static class Transformer {
     @org.springframework.integration.annotation.Transformer
     public File transform(File input) {
+      assertNotNull(input);
+      if (Math.random() < 0.5) {
+        throw new IllegalArgumentException("zoinks!");
+      }
       return input;
     }
   }

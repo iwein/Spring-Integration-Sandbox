@@ -19,7 +19,11 @@
     <i:publish-subscribe-channel id="spreader" task-executor="pool"/>
 
     <i:channel id="out">
-        <i:queue capacity="1000"/>
+        <i:queue capacity="10000"/>
+    </i:channel>
+
+    <i:channel id="errorChannel">
+        <i:queue capacity="10000"/>
     </i:channel>
 
     <i:poller default="true">
