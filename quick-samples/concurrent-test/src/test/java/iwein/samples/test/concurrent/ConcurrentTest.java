@@ -37,7 +37,7 @@ public class ConcurrentTest {
 
   @Autowired
   Service service;
-  private static final int NUMBER_OF_MESSAGES = 5000;
+  private static final int NUMBER_OF_MESSAGES = 400;
 
   @Test(timeout = 200000)
   public void shouldGoThroughPipeline() throws Throwable {
@@ -55,11 +55,13 @@ public class ConcurrentTest {
         outputCount += 1;
       } else {
         Message<?> message = err.receive(10);
-        Throwable payload = ((ErrorMessage) message).getPayload();
-        if (!(payload.getCause() instanceof IllegalArgumentException)){
-          throw payload;
+        if (message != null) {
+          Throwable payload = ((ErrorMessage) message).getPayload();
+          if (!(payload.getCause() instanceof IllegalArgumentException)) {
+            throw payload;
+          }
+          outputCount++;
         }
-        outputCount += message != null ? 1 : 0;
       }
     }
   }

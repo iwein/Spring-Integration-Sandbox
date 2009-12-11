@@ -10,13 +10,7 @@
 			http://www.springframework.org/schema/integration/spring-integration.xsd
 			">
 
-    <i:channel id="in">
-        <i:queue capacity="10000"/>
-    </i:channel>
-
-    <i:bridge input-channel="in" output-channel="spreader"/>
-
-    <i:publish-subscribe-channel id="spreader" task-executor="pool"/>
+    <i:publish-subscribe-channel id="in" task-executor="pool"/>
 
     <i:channel id="out">
         <i:queue capacity="10000"/>
@@ -30,7 +24,7 @@
         <i:interval-trigger interval="100"/>
     </i:poller>
 
-    <i:service-activator ref="service" input-channel="spreader" output-channel="middle"/>
+    <i:service-activator ref="service" input-channel="in" output-channel="middle"/>
 
     <i:channel id="middle"/>
 
@@ -40,5 +34,7 @@
     <bean id="service" class="iwein.samples.test.concurrent.ConcurrentTest$Service"/>
     <bean id="transformer" class="iwein.samples.test.concurrent.ConcurrentTest$Transformer"/>
 
-    <i:thread-pool-task-executor id="pool" max-size="50"/>
+    <bean id="pool" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="maxPoolSize" value="50"/>
+    </bean>
 </beans>
