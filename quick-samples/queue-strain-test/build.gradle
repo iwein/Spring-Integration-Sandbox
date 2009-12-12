@@ -1,13 +1,21 @@
 /*
 Usage:
- 1. download and install gradle (port install gradle on Mac).
+ 1. download and install gradle
+    - port install gradle on Mac
+    - wget http://dist.codehaus.org/gradle/gradle-0.8-all.zip | unzip on *nix
+    - if you're on Windows, fix that first ;)
  2. cd to the directory of this script and run 'gradle'
 
 If you want to compile the source without gradle, make sure you add the contents of ./build/output/lib and
-./build/output/test-lib to the classpath. You'll have to run gradle at least once to download the libs.
+./build/output/test-lib to the classpath. You'll have to run gradle at least once to download the libs, or
+do that manually.
+
+You can also run 'gradle eclipse' to generate eclipse project files and import those into an IDE that supports
+them.
  */
 
 usePlugin 'java'
+usePlugin 'eclipse'
 
 repositories {
   mavenCentral()
