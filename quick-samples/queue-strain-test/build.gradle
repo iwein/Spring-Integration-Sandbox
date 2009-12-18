@@ -23,17 +23,19 @@ repositories {
   mavenRepo urls: 'http://s3.amazonaws.com/maven.springframework.org/milestone'
 }
 
+springVersion = "3.0.0.RELEASE"
+
 dependencies {
   compile group: 'org.slf4j', name: 'slf4j-api', version: '1.5.8'
   compile group: 'org.springframework.integration', name: 'spring-integration-core', version: '2.0.0.BUILD-SNAPSHOT'
-  compile group: 'org.springframework', name: 'spring-beans', version: '3.0.0.RC3'
-  compile group: 'org.springframework', name: 'spring-aop', version: '3.0.0.RC3'
-  compile group: 'org.springframework', name: 'spring-context', version: '3.0.0.RC3'
-  compile group: 'org.springframework', name: 'spring-expression', version: '3.0.0.RC3'
-  compile group: 'org.springframework', name: 'spring-tx', version: '3.0.0.RC3'
+  compile group: 'org.springframework', name: 'spring-beans', version: springVersion
+  compile group: 'org.springframework', name: 'spring-aop', version: springVersion
+  compile group: 'org.springframework', name: 'spring-context', version: springVersion
+  compile group: 'org.springframework', name: 'spring-expression', version: springVersion
+  compile group: 'org.springframework', name: 'spring-tx', version: springVersion
   testCompile group: 'junit', name: 'junit', version: '4.7'
   testCompile group: 'org.mockito', name: 'mockito-all', version: '1.8.1'
-  testCompile group: 'org.springframework', name: 'spring-test', version: '3.0.0.RC3'
+  testCompile group: 'org.springframework', name: 'spring-test', version: springVersion
 }
 
 task copyRuntimeDependencies(dependsOn: configurations.runtime.buildArtifacts, type: Copy) {
