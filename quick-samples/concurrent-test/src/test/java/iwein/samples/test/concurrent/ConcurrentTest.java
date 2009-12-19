@@ -36,7 +36,7 @@ public class ConcurrentTest {
 
   @Autowired
   Service service;
-  private static final int NUMBER_OF_MESSAGES = 1000;
+  private static final int NUMBER_OF_MESSAGES = 100;
 
   @Test(timeout = 200000)
   public void shouldGoThroughPipeline() throws Throwable {
