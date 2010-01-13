@@ -17,7 +17,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  *
  */
-@ContextConfiguration("classpath:queueStrainer.xml")
+@ContextConfiguration("classpath:headerValueRouter.xml")
 @RunWith(SpringJUnit4ClassRunner.class)
 public class HeaderValueRouterTest {
 
