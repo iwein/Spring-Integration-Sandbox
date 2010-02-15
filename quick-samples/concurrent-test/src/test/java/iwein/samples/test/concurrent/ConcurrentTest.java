@@ -8,12 +8,15 @@ import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.PollableChannel;
 import org.springframework.integration.core.Message;
 import org.springframework.integration.core.MessageChannel;
-import org.springframework.integration.message.ErrorMessage;
 import org.springframework.integration.message.MessageBuilder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 
 @ContextConfiguration(locations = {"classpath:context.xml"})
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -36,38 +39,44 @@ public class ConcurrentTest {
 
   @Autowired
   Service service;
-  private static final int NUMBER_OF_MESSAGES = 700;
+
+  @Autowired Transformer transformer;
+
+  private static final int NUMBER_OF_MESSAGES = 200;
 
   @Test(timeout = 200000)
   public void shouldGoThroughPipeline() throws Throwable {
-
-    //when
     for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
-      in.send(MessageBuilder.withPayload("The quick brown fox jumped over the lazy dog").build());
+      in.send(MessageBuilder.withPayload("Payload"+i).build());
     }
-    //verify
+
     int outputCount = 0;
     while (outputCount < NUMBER_OF_MESSAGES) {
-      if (out.receive(10) != null) {
-        outputCount += 1;
+      Message<?> received = out.receive(10);
+      if (received != null) {
+        outputCount++;
+        System.out.println("received: "+received.getPayload());
       } else {
         Message<?> message = err.receive(10);
         if (message != null) {
-          Throwable payload = ((ErrorMessage) message).getPayload();
-          if (!(payload.getCause() instanceof IllegalArgumentException)) {
-            throw payload;
-          }
           outputCount++;
         }
       }
     }
+    assertThat(outputCount, is(NUMBER_OF_MESSAGES));
+    assertThat(transformer.timesInvoked.get(), is(NUMBER_OF_MESSAGES));
+    assertThat(service.timesInvoked.get(), is(NUMBER_OF_MESSAGES));
   }
 
 
   public static class Service {
+    private final AtomicInteger timesInvoked = new AtomicInteger();
+
     @ServiceActivator
     public String serve(String input) {
+      System.out.println("serving: "+input);
       assertNotNull(input);
+      timesInvoked.incrementAndGet();
       if (Math.random() < 0.5) {
         throw new IllegalArgumentException("zoinks!");
       }
@@ -76,9 +85,13 @@ public class ConcurrentTest {
   }
 
   public static class Transformer {
+    private final AtomicInteger timesInvoked = new AtomicInteger();
+
     @org.springframework.integration.annotation.Transformer
     public String transform(String input) {
+      System.out.println("transforming: "+input);
       assertNotNull(input);
+      timesInvoked.incrementAndGet();
       if (Math.random() < 0.5) {
         throw new IllegalArgumentException("zoinks!");
       }

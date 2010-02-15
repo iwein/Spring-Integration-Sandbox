@@ -13,11 +13,11 @@
     <i:publish-subscribe-channel id="in" task-executor="pool"/>
 
     <i:channel id="out">
-        <i:queue capacity="10000"/>
+        <i:queue/>
     </i:channel>
 
     <i:channel id="errorChannel">
-        <i:queue capacity="10000"/>
+        <i:queue/>
     </i:channel>
 
     <i:service-activator ref="service" input-channel="in" output-channel="middle"/>
@@ -26,10 +26,8 @@
 
     <i:transformer ref="transformer" input-channel="middle" output-channel="out"/>
 
-
     <bean id="service" class="iwein.samples.test.concurrent.ConcurrentTest$Service"/>
     <bean id="transformer" class="iwein.samples.test.concurrent.ConcurrentTest$Transformer"/>
-
     <bean id="pool" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
         <property name="maxPoolSize" value="50"/>
     </bean>

@@ -26,13 +26,9 @@ repositories {
 
 springVersion = "3.0.0.RELEASE"
 
-/*configurations  {
-   compile.exclude group: 'org.springframework' , version: '3.0.0.RC1'
-} */
-
 dependencies {
   compile group: 'org.slf4j', name: 'slf4j-api', version: '1.5.8'
-  compile('org.springframework.integration:spring-integration-core:2.0.0.BUILD-SNAPSHOT') {
+  compile('org.springframework.integration:spring-integration-core:2.0.0.M2') {
     exclude group: 'org.springframework' //bug in maven-manifest.xml causes dep on RC1 otherwise
   }
   compile group: 'org.springframework', name: 'spring-beans', version: springVersion
