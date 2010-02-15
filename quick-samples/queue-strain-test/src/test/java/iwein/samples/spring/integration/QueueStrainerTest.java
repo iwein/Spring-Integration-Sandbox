@@ -1,7 +1,6 @@
 package iwein.samples.spring.integration;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,14 +41,16 @@ public class QueueStrainerTest {
     }
   }
 
-  @Test(timeout = 10000)
-  @Ignore
+  @Test
+  //@Ignore
   public void shouldOverflowQueue() {
     //blocks indefinitely on the last message
     for (int i = 0; i < 6; i++) {
       operator.connect(1);
     }
   }
+
+  
 
   @Test(timeout = 10000)
   public void shouldBlockQueueUntilCapacity() {
