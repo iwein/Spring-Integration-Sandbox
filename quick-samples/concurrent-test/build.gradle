@@ -24,11 +24,11 @@ repositories {
   mavenRepo urls: 'http://s3.amazonaws.com/maven.springframework.org/release'
 }
 
-springVersion = "3.0.0.RELEASE"
+springVersion = "3.0.1.RELEASE"
 
 dependencies {
   compile group: 'org.slf4j', name: 'slf4j-api', version: '1.5.8'
-  compile('org.springframework.integration:spring-integration-core:2.0.0.M2') {
+  compile('org.springframework.integration:spring-integration-core:2.0.0.BUILD-SNAPSHOT') {
     exclude group: 'org.springframework' //bug in maven-manifest.xml causes dep on RC1 otherwise
   }
   compile group: 'org.springframework', name: 'spring-beans', version: springVersion
