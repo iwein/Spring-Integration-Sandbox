@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns="http://www.springframework.org/schema/integration"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/integration
+			http://www.springframework.org/schema/integration/spring-integration.xsd">
+
+    <channel id="in"/>
+
+    <filter
+            input-channel="in"
+            ref="retryFilter"
+            method="doRetry"
+            output-channel="delayChannel"/>
+
+    <channel id="delayChannel"/>
+
+    <delayer input-channel="delayChannel" default-delay="10000" output-channel="out"/>
+
+    <channel id="out">
+        <queue capacity="100"/>
+    </channel>
+
+    <poller id="poller" default="true">
+        <interval-trigger interval="1000"/>
+    </poller>
+
+    <beans:bean id="retryFilter" class="iwein.samples.spring.integration.DelayerTest$RetryFilter"/>
+</beans:beans>
