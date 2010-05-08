@@ -51,7 +51,8 @@ public class ConcurrentTest {
     }
 
     int outputCount = 0;
-    while (outputCount < NUMBER_OF_MESSAGES) {
+    int errCount = 0;
+    while (outputCount+errCount < NUMBER_OF_MESSAGES) {
       Message<?> received = out.receive(10);
       if (received != null) {
         outputCount++;
@@ -59,13 +60,12 @@ public class ConcurrentTest {
       } else {
         Message<?> message = err.receive(10);
         if (message != null) {
-          outputCount++;
+          errCount++;
         }
       }
     }
-    assertThat(outputCount, is(NUMBER_OF_MESSAGES));
-    assertThat(transformer.timesInvoked.get(), is(NUMBER_OF_MESSAGES));
-    assertThat(service.timesInvoked.get(), is(NUMBER_OF_MESSAGES));
+    assertThat(outputCount+errCount, is(NUMBER_OF_MESSAGES));
+    assertThat(transformer.timesInvoked.get()+service.timesInvoked.get()-errCount, is(NUMBER_OF_MESSAGES));
   }
 
 
