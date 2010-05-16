@@ -1,3 +1,1 @@
-This is a very poor export of the portions of my brain related mostly to Spring Integration. You are free to import
-it into yours, but I will take no responsibility for the consequences or any incompatibilities that you might encounter.
-
+I'm using this sandbox to develop code samples related to Spring Integration mostly. If you're following a link here it is most likely because I'm trying to answer a question with a code sample. The code here might be nice to look over if you're just looking for ideas, it is not meant to be run in production as is.
