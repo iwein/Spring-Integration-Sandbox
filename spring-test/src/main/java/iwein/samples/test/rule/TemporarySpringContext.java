@@ -11,14 +11,15 @@ import org.springframework.context.ConfigurableApplicationContext;
 public class TemporarySpringContext extends TestWatchman {
   /**
    * Cache of Spring application contexts. This needs to be static, as tests
-   * may be destroyed and recreated between running individual test methods,
-   * for example with JUnit.
+   * are typically destroyed and recreated between running individual test methods.
    */
   static final ContextCache contextCache = new ContextCache();
 
   private ConfigurableApplicationContext context;
+  private final String[] contextLocations;
 
   public TemporarySpringContext(String... contextLocations) {
+    this.contextLocations = contextLocations;
     try {
       context = contextCache.contextForLocations(contextLocations);
     } catch (Exception e) {
@@ -34,5 +35,9 @@ public class TemporarySpringContext extends TestWatchman {
 
   public ConfigurableApplicationContext getContext() {
     return context;
+  }
+
+  public void dirtyContext() {
+    contextCache.markDirty(contextLocations);
   }
 }
