@@ -40,7 +40,6 @@ public class CorrelatingMessageBarrierIntegrationTest {
     releaseStrategy.releaseAll();
   }
 
-
   @Test
   public void shouldPassSingleMessage() {
     in.send(testMessage("foo"));
@@ -64,13 +63,13 @@ public class CorrelatingMessageBarrierIntegrationTest {
   @Test
   public void shouldNeverDropMessage() {
     final CountDownLatch start = new CountDownLatch(1);
-    for (int i =0; i<20; i++){
+    for (int i =0; i<200; i++){
       sendAsynchronously(in, testMessage("foo"), start);
     }
     start.countDown();
     
     assertThat((String) (out.receive()).getPayload(), is("foo"));
-    for (int i =0; i<19; i++){
+    for (int i =0; i<199; i++){
       releaseStrategy.release("foo");
       assertThat((String) (out.receive()).getPayload(), is("foo"));
     }

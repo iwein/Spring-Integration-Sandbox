@@ -1,12 +1,12 @@
 package iwein.samples.barriers;
 
+import iwein.samples.store.SimpleMessageStore;
 import org.springframework.integration.aggregator.CorrelationStrategy;
 import org.springframework.integration.aggregator.ReleaseStrategy;
 import org.springframework.integration.core.Message;
 import org.springframework.integration.message.*;
 import org.springframework.integration.store.MessageGroup;
 import org.springframework.integration.store.MessageGroupStore;
-import org.springframework.integration.store.SimpleMessageStore;
 
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
