@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns="http://www.springframework.org/schema/integration"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/integration
+			http://www.springframework.org/schema/integration/spring-integration.xsd">
+
+    <channel id="in"/>
+
+    <outbound-channel-adapter channel="in" ref="barrier"/>
+    <inbound-channel-adapter channel="out" ref="barrier"/>
+
+    <channel id="out">
+        <queue capacity="100"/>
+    </channel>
+
+    <poller id="poller" default="true">
+        <interval-trigger interval="10"/>
+    </poller>
+    
+    <beans:bean id="barrier" class="iwein.samples.barriers.CorrelatingMessageBarrier">
+        <beans:property name="correlationStrategy">
+            <beans:bean class="iwein.samples.barriers.CorrelatingMessageBarrierIntegrationTest$PayloadCorrelator"/>
+        </beans:property>
+        <beans:property name="releaseStrategy" ref="trackingReleaseStrategy"/>
+    </beans:bean>
+    <beans:bean id="trackingReleaseStrategy" class="iwein.samples.barriers.CorrelatingMessageBarrierIntegrationTest$TrackingReleaseStrategy"/>
+
+</beans:beans>
