@@ -4,13 +4,17 @@ import iwein.samples.store.SimpleMessageStore;
 import org.springframework.integration.aggregator.CorrelationStrategy;
 import org.springframework.integration.aggregator.ReleaseStrategy;
 import org.springframework.integration.core.Message;
-import org.springframework.integration.message.*;
+import org.springframework.integration.message.MessageDeliveryException;
+import org.springframework.integration.message.MessageHandler;
+import org.springframework.integration.message.MessageHandlingException;
+import org.springframework.integration.message.MessageSource;
 import org.springframework.integration.store.MessageGroup;
 import org.springframework.integration.store.MessageGroupStore;
 
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
 
 /**
  * @author Iwein Fuld
@@ -23,8 +27,11 @@ public class CorrelatingMessageBarrier implements MessageHandler, MessageSource 
   private ReleaseStrategy releaseStrategy;
   private CorrelationStrategy correlationStrategy;
 
+  //TODO use this upper bound
+  private Semaphore messagesUpperBound;
+
   @Override
-  public void handleMessage(Message<?> message) throws MessageRejectedException, MessageHandlingException, MessageDeliveryException {
+  public void handleMessage(Message<?> message) throws MessageHandlingException, MessageDeliveryException {
     Object correlationKey = correlationStrategy.getCorrelationKey(message);
     Object lock = getLock(correlationKey);
     synchronized (lock) {
@@ -40,12 +47,15 @@ public class CorrelatingMessageBarrier implements MessageHandler, MessageSource 
       Object lock = getLock(key);
       synchronized (lock) {
         MessageGroup group = reservoir.getMessageGroup(key);
-        if (releaseStrategy.canRelease(group)) {
-          Message<?> nextMessage = group.getOne();
-          if (nextMessage == null) {
-            remove(key);
+        //group might be removed by another thread
+        if (group != null) {
+          if (releaseStrategy.canRelease(group)) {
+            Message<?> nextMessage = group.getOne();
+            if (nextMessage == null) {
+              remove(key);
+            }
+            return nextMessage;
           }
-          return nextMessage;
         }
       }
     }
@@ -68,5 +78,11 @@ public class CorrelatingMessageBarrier implements MessageHandler, MessageSource 
 
   public void setCorrelationStrategy(CorrelationStrategy correlationStrategy) {
     this.correlationStrategy = correlationStrategy;
+  }
+
+  public void setMessagesUpperBound(int messagesUpperBound) {
+    if (messagesUpperBound > 0) {
+      this.messagesUpperBound = new Semaphore(messagesUpperBound);
+    }
   }
 }

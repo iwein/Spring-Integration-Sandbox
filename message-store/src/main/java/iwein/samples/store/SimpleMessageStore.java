@@ -12,7 +12,6 @@ package iwein.samples.store;/*
  */
 
 
-import iwein.samples.store.SimpleMessageGroup;
 import org.springframework.integration.core.Message;
 import org.springframework.integration.core.MessagingException;
 import org.springframework.integration.store.AbstractMessageGroupStore;
