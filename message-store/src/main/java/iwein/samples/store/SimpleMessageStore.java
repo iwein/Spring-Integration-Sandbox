@@ -137,4 +137,7 @@ public class SimpleMessageStore extends AbstractMessageGroupStore implements Mes
 		return correlationToMessageGroup.get(correlationId);
 	}
 
+  public void markSingleMessage(Object key, Message<?> nextMessage) {
+    getMessageGroupInternal(key).markSingleMessage(nextMessage);
+  }
 }

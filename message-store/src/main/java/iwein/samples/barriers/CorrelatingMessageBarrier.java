@@ -11,8 +11,7 @@ import org.springframework.integration.message.MessageSource;
 import org.springframework.integration.store.MessageGroup;
 import org.springframework.integration.store.MessageGroupStore;
 
-import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 
@@ -21,7 +20,6 @@ import java.util.concurrent.Semaphore;
  */
 public class CorrelatingMessageBarrier implements MessageHandler, MessageSource {
 
-  private Queue<Object> correlationsInReservoir = new ArrayBlockingQueue<Object>(10000);
   private ConcurrentHashMap<Object, Object> correlationLocks = new ConcurrentHashMap<Object, Object>();
   private MessageGroupStore reservoir = new SimpleMessageStore(10000);
   private ReleaseStrategy releaseStrategy;
@@ -32,11 +30,17 @@ public class CorrelatingMessageBarrier implements MessageHandler, MessageSource 
 
   @Override
   public void handleMessage(Message<?> message) throws MessageHandlingException, MessageDeliveryException {
+    if (messagesUpperBound != null) {
+      try {
+        messagesUpperBound.acquire();
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
+    }
     Object correlationKey = correlationStrategy.getCorrelationKey(message);
     Object lock = getLock(correlationKey);
     synchronized (lock) {
       reservoir.addMessageToGroup(correlationKey, message);
-      correlationsInReservoir.offer(correlationKey);
     }
     System.out.println("handled message: " + message);
   }
@@ -50,8 +54,16 @@ public class CorrelatingMessageBarrier implements MessageHandler, MessageSource 
         //group might be removed by another thread
         if (group != null) {
           if (releaseStrategy.canRelease(group)) {
-            Message<?> nextMessage = group.getOne();
-            if (nextMessage == null) {
+            Message<?> nextMessage = null;
+            //this should be aQueue.poll() maybe?
+            Iterator<Message<?>> unmarked = group.getUnmarked().iterator();
+            if (unmarked.hasNext()) {
+              nextMessage = unmarked.next();
+              //TODO remove cast when MessageGroup supports this
+              ((SimpleMessageStore) reservoir).markSingleMessage(key, nextMessage);
+
+              messagesUpperBound.release();
+            } else {
               remove(key);
             }
             return nextMessage;
@@ -68,8 +80,8 @@ public class CorrelatingMessageBarrier implements MessageHandler, MessageSource 
   }
 
   private Object getLock(Object correlationKey) {
-    correlationLocks.putIfAbsent(correlationKey, correlationKey);
-    return correlationLocks.get(correlationKey);
+    Object existingLock = correlationLocks.putIfAbsent(correlationKey, correlationKey);
+    return existingLock == null ? correlationKey : existingLock;
   }
 
   public void setReleaseStrategy(ReleaseStrategy releaseStrategy) {
