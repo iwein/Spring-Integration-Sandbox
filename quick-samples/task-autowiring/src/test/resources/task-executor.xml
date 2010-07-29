@@ -10,13 +10,7 @@
 
   <context:annotation-config/>
 
-  <!--<bean id="executor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">-->
-  <!--<property name="corePoolSize" value="5" />-->
-  <!--<property name="maxPoolSize" value="10" />-->
-  <!--<property name="queueCapacity" value="25" />-->
-  <!--</bean>-->
-
-  <!-- comment this and uncomment the bean above to be flabbergasted -->
+  <!-- works in 3.0.4 nightly now -->
   <task:executor id="executor" pool-size="5" />
 
 
