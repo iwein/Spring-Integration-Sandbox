@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:i="http://www.springframework.org/schema/integration"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/integration
+			http://www.springframework.org/schema/integration/spring-integration.xsd">
+
+    <i:channel id="in"/>
+
+    <i:service-activator input-channel="in" output-channel="out">
+        <bean class="iwein.samples.Porter"/>
+    </i:service-activator>
+
+
+    <i:channel id="out">
+        <i:queue capacity="10"/>
+    </i:channel>
+
+</beans>
