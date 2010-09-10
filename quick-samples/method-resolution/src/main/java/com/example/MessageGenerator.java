@@ -1,7 +1,7 @@
 package com.example;
 
-import org.springframework.integration.core.Message;
-import org.springframework.integration.message.MessageBuilder;
+import org.springframework.integration.Message;
+import org.springframework.integration.support.MessageBuilder;
 
 public class MessageGenerator {
 

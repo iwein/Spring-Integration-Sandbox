@@ -1,6 +1,7 @@
 package iwein.samples.si.methodresolution;
 
-import org.springframework.integration.core.Message;
+import org.springframework.integration.Message;
+
 
 /**
 *
